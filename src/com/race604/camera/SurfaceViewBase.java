@@ -1,10 +1,15 @@
 package com.race604.camera;
 
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Point;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
@@ -20,10 +25,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-
 public abstract class SurfaceViewBase extends SurfaceView implements
 		SurfaceHolder.Callback, Runnable {
 	private static final String TAG = "Sample::SurfaceView";
@@ -37,7 +38,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 	private boolean mThreadRun;
 	private byte[] mBuffer;
 	private Matrix mMatrix;
-	
+
 	private HashSet<OnTouchSurfaceListener> mTouchListeners = new HashSet<OnTouchSurfaceListener>();
 
 	public SurfaceViewBase(Context context) {
@@ -54,15 +55,14 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 		super(context, attrs);
 		init();
 	}
-	
+
 	private void init() {
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 		mMatrix = new Matrix();
 	}
-	
-	
+
 	public int getFrameWidth() {
 		return mFrameWidth;
 	}
@@ -93,22 +93,22 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 
 			mFrameWidth = optimalPreviewSize.width;
 			mFrameHeight = optimalPreviewSize.height;
-			
+
 			params.setPreviewSize(getFrameWidth(), getFrameHeight());
 
 			List<String> FocusModes = params.getSupportedFocusModes();
-			if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
-            {
-            	params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-            } else if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+			if (FocusModes
+					.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+				params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+			} else if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 				params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 			}
-			
+
 			mCamera.setParameters(params);
-			
+
 			mMatrix = new Matrix();
-            float scale = (float)getWidth() / (float)getFrameWidth();
-            mMatrix.setScale(scale, scale);
+			float scale = (float) getWidth() / (float) getFrameWidth();
+			mMatrix.setScale(scale, scale);
 
 			/* Now allocate the buffer */
 			params = mCamera.getParameters();
@@ -184,53 +184,65 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			}
 		});
 	}
-	
+
 	public void addOnTouchListener(OnTouchSurfaceListener l) {
-	    if(mTouchListeners.contains(l)) {
-	        return;
-	    }
-	    mTouchListeners.add(l);
+		if (mTouchListeners.contains(l)) {
+			return;
+		}
+		mTouchListeners.add(l);
 	}
-	
+
 	public void removeOnTouchListener(OnTouchListener l) {
-	    mTouchListeners.remove(l);
+		mTouchListeners.remove(l);
 	}
-	
+
 	public void getYUVAt(byte[] yuv, int x, int y) {
-	    
-	    float[] f = new float[9];
-	    mMatrix.getValues(f);
 
-	    float scale = f[Matrix.MSCALE_X];
-	    
-	    x /= scale;
-        y /= scale;
-	    
-	    if(x < 0 || x > getFrameWidth()
-	            || y < 0 || y > getFrameHeight()) {
-	        yuv[0] = yuv[1] = yuv[2] = -1;
-	    }
-	    
-	    final int frameSize = getFrameWidth() * getFrameHeight();
-	    int uvp = frameSize + (y >> 1) * getFrameWidth() + (x & ~1);
-	    yuv[0] = mFrame[y*getFrameWidth() + x];
-	    yuv[1] = mFrame[uvp];
-	    yuv[2] = mFrame[uvp+1];
+		float[] f = new float[9];
+		mMatrix.getValues(f);
+
+		float scale = f[Matrix.MSCALE_X];
+
+		x /= scale;
+		y /= scale;
+
+		if (x < 0 || x > getFrameWidth() || y < 0 || y > getFrameHeight()) {
+			yuv[0] = yuv[1] = yuv[2] = -1;
+		}
+
+		final int frameSize = getFrameWidth() * getFrameHeight();
+		int uvp = frameSize + (y >> 1) * getFrameWidth() + (x & ~1);
+		yuv[0] = mFrame[y * getFrameWidth() + x];
+		yuv[1] = mFrame[uvp];
+		yuv[2] = mFrame[uvp + 1];
 	}
-	
-	@Override
-    public boolean onTouchEvent(MotionEvent event) {
-        
-	    for(OnTouchSurfaceListener l : mTouchListeners) {
-	        if (l.onTouchSurface(this, event) ) {
-	            return true;
-	        }
-	    }
-	    
-        return super.onTouchEvent(event);
-    }
 
-    /*
+	public Point getPointAt(int x, int y) {
+
+		float[] f = new float[9];
+		mMatrix.getValues(f);
+
+		float scale = f[Matrix.MSCALE_X];
+
+		x /= scale;
+		y /= scale;
+
+		return new Point(x, y);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+
+		for (OnTouchSurfaceListener l : mTouchListeners) {
+			if (l.onTouchSurface(this, event)) {
+				return true;
+			}
+		}
+
+		return super.onTouchEvent(event);
+	}
+
+	/*
 	 * The bitmap returned by this method shall be owned by the child and
 	 * released in onPreviewStopped()
 	 */
@@ -278,17 +290,19 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			if (bmp != null) {
 				Canvas canvas = mHolder.lockCanvas();
 				if (canvas != null) {
-//					Matrix matrix = new Matrix();
-//					float scale = (float)canvas.getWidth() / (float)getFrameWidth();
-//					matrix.setScale(scale, scale);
-					canvas.drawBitmap(bmp,mMatrix, null);
+					// Matrix matrix = new Matrix();
+					// float scale = (float)canvas.getWidth() /
+					// (float)getFrameWidth();
+					// matrix.setScale(scale, scale);
+					canvas.drawBitmap(bmp, mMatrix, null);
 					mHolder.unlockCanvasAndPost(canvas);
 				}
 			}
 		}
 	}
-	
-	public static interface OnTouchSurfaceListener{
-	    public boolean onTouchSurface(SurfaceViewBase surfaceView, MotionEvent envent);
+
+	public static interface OnTouchSurfaceListener {
+		public boolean onTouchSurface(SurfaceViewBase surfaceView,
+				MotionEvent envent);
 	}
 }

@@ -32,26 +32,28 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_FastFeatureDetector_FindFea
     env->ReleaseByteArrayElements(yuv, _yuv, 0);
 }
 
-JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleColor(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jint yuvcolor)
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleColor(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jint x, jint y)
 {
     jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
     jint*  _bgra = env->GetIntArrayElements(bgra, 0);
 
 	int frameSize = width * height;
 
-	int U = ((yuvcolor > 8) & 0xff) - 128;
-	int V = (yuvcolor & 0xff) - 128;
+	int dstP = frameSize + (y >> 1) * width + (x & ~1);
+
+	int U = (0xff & _yuv[dstP]);
+	int V = (0xff & _yuv[dstP+1]);
 
 	for (int j = 0; j < height; j++) {
 		int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
 		for (int i = 0; i < width; i+=2) {
-			v = (0xff & _yuv[uvp++]) - 128;
-			u = (0xff & _yuv[uvp++]) - 128;
+			v = (0xff & _yuv[uvp++]);
+			u = (0xff & _yuv[uvp++]);
 
 			int dU = u - U;
 			int dV = v - V;
 
-			if (dU*dV + dV*dV > 50) {
+			if (dU*dU + dV*dV > 550) {
 				_yuv[uvp-1] = 128;
 				_yuv[uvp-2] = 128;
 
@@ -64,6 +66,7 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
     //Please make attention about BGRA byte order
     //ARGB stored in java as int array becomes BGRA at native level
     cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
+	circle(mbgra, Point(x, y), 10, Scalar(0,0,255,255));
 
     env->ReleaseIntArrayElements(bgra, _bgra, 0);
     env->ReleaseByteArrayElements(yuv, _yuv, 0);

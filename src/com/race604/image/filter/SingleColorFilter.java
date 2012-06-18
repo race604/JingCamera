@@ -3,20 +3,20 @@ package com.race604.image.filter;
 import com.race604.camera.SurfaceViewBase;
 import com.race604.camera.SurfaceViewBase.OnTouchSurfaceListener;
 
+import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
 
-	private int mYUV;
+	private Point mPoint = new Point(0, 0);
 	
 	@Override
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height) {
-		SingleColor(width, height, yuv, rgba, mYUV);
-		
+		SingleColor(width, height, yuv, rgba, mPoint.x, mPoint.y);
 	}
 	
-	public native void SingleColor(int width, int height, byte yuv[], int[] rgba, int color);
+	public native void SingleColor(int width, int height, byte yuv[], int[] rgba, int x, int y);
 
     static {
         System.loadLibrary("jing_native");
@@ -39,10 +39,7 @@ public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
         int x = (int)event.getX();
         int y = (int)event.getY();
         
-        byte[] yuv = new byte[3];
-        surface.getYUVAt(yuv, x, y);
-        
-        mYUV = 0xff000000 | ((int)yuv[0] << 16) & 0xff0000 | ((int)yuv[1] << 8) & 0xff00 | (int)yuv[2]  & 0xff;
+        mPoint = surface.getPointAt(x, y);
         
         return false;
     }

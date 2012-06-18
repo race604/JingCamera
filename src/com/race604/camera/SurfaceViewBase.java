@@ -213,7 +213,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 	    
 	    final int frameSize = getFrameWidth() * getFrameHeight();
 	    int uvp = frameSize + (y >> 1) * getFrameWidth() + (x & ~1);
-	    yuv[0] = mFrame[y*getWidth() + x];
+	    yuv[0] = mFrame[y*getFrameWidth() + x];
 	    yuv[1] = mFrame[uvp];
 	    yuv[2] = mFrame[uvp+1];
 	}

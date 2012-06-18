@@ -39,8 +39,8 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 
 	int frameSize = width * height;
 
-	int U = (yuvcolor > 8) & 0xff - 128;
-	int V = yuvcolor & 0xff - 128;
+	int U = ((yuvcolor > 8) & 0xff) - 128;
+	int V = (yuvcolor & 0xff) - 128;
 
 	for (int j = 0; j < height; j++) {
 		int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;

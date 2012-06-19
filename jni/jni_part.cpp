@@ -39,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 
 	int frameSize = width * height;
 
-	int dstP = frameSize + (y >> 1) * width + (x & ~1);
+	int dstP = frameSize + ((height-y) >> 1) * width + ((width - x) & ~1);
 
 	int U = (0xff & _yuv[dstP]);
 	int V = (0xff & _yuv[dstP+1]);
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 			int dU = u - U;
 			int dV = v - V;
 
-			if (dU*dU + dV*dV > 550) {
+			if (dU*dU + dV*dV > 250) {
 				_yuv[uvp-1] = 128;
 				_yuv[uvp-2] = 128;
 
@@ -66,7 +66,7 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
     //Please make attention about BGRA byte order
     //ARGB stored in java as int array becomes BGRA at native level
     cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
-	circle(mbgra, Point(x, y), 10, Scalar(0,0,255,255));
+	circle(mbgra, Point(x, y), 10, Scalar(0,255,0,255));
 
     env->ReleaseIntArrayElements(bgra, _bgra, 0);
     env->ReleaseByteArrayElements(yuv, _yuv, 0);

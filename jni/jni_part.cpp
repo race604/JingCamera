@@ -68,6 +68,8 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
     //Please make attention about BGRA byte order
     //ARGB stored in java as int array becomes BGRA at native level
     cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
+    //cvtColor(mbgra, mbgra, CV_BGR2HSV);
+    //cvtColor(mbgra, mbgra, CV_HSV2BGR);
 	circle(mbgra, Point(x, y), 10, Scalar(0,255,0,255));
 
     env->ReleaseIntArrayElements(bgra, _bgra, 0);

@@ -39,12 +39,12 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 
 	int frameSize = width * height;
 
-	int dstP = frameSize + ((height-y) >> 1) * width + ((width - x) & ~1);
+	int dstP = frameSize + (y >> 1) * width + (x & ~1);
 
-	int U = (0xff & _yuv[dstP]);
-	int V = (0xff & _yuv[dstP+1]);
+	int V = (0xff & _yuv[dstP]);
+	int U = (0xff & _yuv[dstP+1]);
 
-	for (int j = 0; j < height; j++) {
+	for (int j = 0; j < height; j+=2) {
 		int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
 		for (int i = 0; i < width; i+=2) {
 			v = (0xff & _yuv[uvp++]);
@@ -53,15 +53,17 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 			int dU = u - U;
 			int dV = v - V;
 
-			if (dU*dU + dV*dV > 250) {
+			if (dU*dU + dV*dV > 255) {
 				_yuv[uvp-1] = 128;
 				_yuv[uvp-2] = 128;
 
 			} 
 		}
 	}
-    Mat myuv(height + height/2, width, CV_8UC1, (unsigned char *)_yuv);
-    Mat mbgra(height, width, CV_8UC4, (unsigned char *)_bgra);
+	Mat myuv(height + height/2, width, CV_8UC1, (unsigned char *)_yuv);
+	Mat mbgra(height, width, CV_8UC4, (unsigned char *)_bgra);
+	
+	
 
     //Please make attention about BGRA byte order
     //ARGB stored in java as int array becomes BGRA at native level

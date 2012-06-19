@@ -103,7 +103,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			} else if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 				params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 			}
-
+//			params.setPreviewFormat(ImageFormat.RGB_565);
 			mCamera.setParameters(params);
 
 			mMatrix = new Matrix();

@@ -108,9 +108,9 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 			srcY++;
 			
 			rgb2hsv(dst, tmp, 1);
-			//if (tmp[0] > 10) {
-				//dst[0] = dst[1] = dst[2] = SATURATE_CAST_UCHAR((srcY[0] & 0xff) - 16);
-			//}
+			if (tmp[0] > 10) {
+				dst[0] = dst[1] = dst[2] = SATURATE_CAST_UCHAR((srcY[0] & 0xff) - 16);
+			}
 
 			dst += 4;
 		}

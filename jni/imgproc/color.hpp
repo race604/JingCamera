@@ -102,12 +102,12 @@ struct RGB2HSV_b
 
 
 ////////////////////////////////////// YUV420sp <-> RGBA ///////////////////////////////////////
-struct YUV2RGB
+struct YUV420sp2RGB
 {
 	int bIdx;
 	int dstcn;
 
-    YUV2RGB(int _bIdx, int _dcn)
+    YUV420sp2RGB(int _dcn, int _bIdx)
         : bIdx(_bIdx), dstcn(_dcn) {}
 
     void operator()(const uchar* srcY, const uchar* srcUV, uchar* dst, int n) const
@@ -120,34 +120,37 @@ struct YUV2RGB
         //G = (1220542(Y - 16) - 852492(V - 128) - 409993(U - 128) + (1 << 19)) >> 20
         //B = (1220542(Y - 16)                  + 2116026(U - 128) + (1 << 19)) >> 20
 
-        int i, bidx = bIdx, dcn = dstcn;
-        const int shift = 20;
+        int i, bidx = bIdx, dcn = dstcn, u, v;
         
-        for( i = 0; i < n; i++, dst += dcn, srcY++, srcUV+=2 )
+        for( i = 0; i < n; i++, dst += dcn, srcY++ )
         {
-            int y = srcY[0], u = srcUV[0], v = srcUV[1];
-            int h, s, v = b;
-            int vmin = b, diff;
-            int vr, vg;
-            
-            v = CALC_MAX( v, g );
-            v = CALC_MAX( v, r );
-            vmin = CALC_MIN( vmin, g );
-            vmin = CALC_MIN( vmin, r );
-            
-            diff = v - vmin;
-            vr = v == r ? -1 : 0;
-            vg = v == g ? -1 : 0;
-            
-            s = (diff * sdiv_table[v] + (1 << (hsv_shift-1))) >> hsv_shift;
-            h = (vr & (g - b)) +
-                (~vr & ((vg & (b - r + 2 * diff)) + ((~vg) & (r - g + 4 * diff))));
-            h = (h * hdiv_table[diff] + (1 << (hsv_shift-1))) >> hsv_shift;
-            h += h < 0 ? hr : 0;
-            
-            dst[i] = SATURATE_CAST_UCHAR(h);
-            dst[i+1] = (uchar)s;
-            dst[i+2] = (uchar)v;
+            int y = (0xff & srcY[0]) - 16;
+			if ((i&1) == 0) {
+				u = (0xff & srcUV[0]) - 128;
+				v = (0xff & srcUV[1]) - 128;
+				srcUV += 2;
+			}
+			int y1192 = 1192 * y;
+			int r = (y1192 + 1634 * v);
+			int g = (y1192 - 833 * v - 400 * u);
+			int b = (y1192 + 2066 * u);
+
+			if (r < 0) r = 0; else if (r > 262143) r = 262143;
+			if (g < 0) g = 0; else if (g > 262143) g = 262143;
+			if (b < 0) b = 0; else if (b > 262143) b = 262143;
+
+			dst[bIdx] = (r >> 10) & 0xff;
+			dst[1] = (g >> 10) & 0xff;
+			dst[bIdx^2] = (b >> 10) & 0xff;
+			dst[3] = 0xff;
+			
+			//int val = y - 16;
+			//if (val < 0) val = 0; else if (val > 255) val = 255;
+			
+			//dst[0] = val;
+			//dst[1] = val;
+			//dst[2] = val;
+			//dst[3] = 0xff;
         }
     }
 };

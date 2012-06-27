@@ -79,39 +79,42 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
     jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
     jint*  _bgra = env->GetIntArrayElements(bgra, 0);
 
-	Mat myuv(height + height/2, width, CV_8UC1, (unsigned char *)_yuv);
-	Mat mbgra(height, width, CV_8UC4, (unsigned char *)_bgra);
+	//Mat myuv(height + height/2, width, CV_8UC1, (unsigned char *)_yuv);
+	//Mat mbgra(height, width, CV_8UC4, (unsigned char *)_bgra);
 
-    //Please make attention about BGRA byte order
-    //ARGB stored in java as int array becomes BGRA at native level
-    cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
-	cvtColor(mbgra, mbgra, CV_BGR2HSV);
-	struct RGB2HSV_b cvt(4, 0, 180);
+    ////Please make attention about BGRA byte order
+    ////ARGB stored in java as int array becomes BGRA at native level
+    //cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
+	//cvtColor(mbgra, mbgra, CV_BGR2HSV);
+	struct YUV420sp2RGB yuv2rgb(4, 0);
+	struct RGB2HSV_b rgb2hsv(4, 0, 180);
 
-	int channels = mbgra.channels();
-	int nRows = mbgra.rows * channels;
-	int nCols = mbgra.cols;
-	if (I.isContinuous())
-	{
-		nCols *= nRows;
-		nRows = 1;
-	}
-	int i,j;
-	uchar* p;
-	uchar hsv[3];
-	for( i = 0; i < nRows; ++i)
-	{
-		p = I.ptr<uchar>(i);
-		for ( j = 0; j < nCols; ++j)
-		{
-			p[j] = table[p[j]];
+	int frameSize = width*height;
+
+	unsigned char * srcY = (unsigned char *)_yuv;
+	unsigned char * srcUV = srcY + frameSize;
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	unsigned char tmp[4];
+
+	for (int j=0; j<height; ++j){
+		srcUV = srcY + frameSize + (j >> 1)*width;
+		for (int i=0; i<width; ++i){
+			yuv2rgb(srcY, srcUV, dst, 1);
+
+			if ((i&1) == 1){
+				srcUV += 2;
+			}
+			srcY++;
+			
+			rgb2hsv(dst, tmp, 1);
+			//if (tmp[0] > 10) {
+				//dst[0] = dst[1] = dst[2] = SATURATE_CAST_UCHAR((srcY[0] & 0xff) - 16);
+			//}
+
+			dst += 4;
 		}
 	}
-
-
-    cvtColor(mbgra, mbgra, CV_HSV2BGR);
-
-
 
     env->ReleaseIntArrayElements(bgra, _bgra, 0);
     env->ReleaseByteArrayElements(yuv, _yuv, 0);

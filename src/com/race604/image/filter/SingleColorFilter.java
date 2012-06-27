@@ -9,14 +9,14 @@ import android.view.View;
 
 public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
 
-	private Point mPoint = new Point(0, 0);
+	private byte[] mColor = new byte[3]; // color int YUV
 	
 	@Override
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height) {
-		SingleColor(width, height, yuv, rgba, mPoint.x, mPoint.y);
+		SingleColor(width, height, yuv, rgba, mColor[0], mColor[1], mColor[2]);
 	}
 	
-	public native void SingleColor(int width, int height, byte yuv[], int[] rgba, int x, int y);
+	public native void SingleColor(int width, int height, byte yuv[], int[] rgba, byte Y, byte U, byte V);
 
     static {
         System.loadLibrary("jing_native");
@@ -39,7 +39,7 @@ public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
         int x = (int)event.getX();
         int y = (int)event.getY();
         
-        mPoint = surface.getPointAt(x, y);
+        surface.getYUVAt(mColor, x, y);
         
         return false;
     }

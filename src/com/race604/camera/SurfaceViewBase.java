@@ -37,7 +37,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 	private byte[] mFrame;
 	private boolean mThreadRun;
 	private byte[] mBuffer;
-	private Matrix mMatrix;
+	private Matrix mMatrix, mMatrixInv;
 
 	private HashSet<OnTouchSurfaceListener> mTouchListeners = new HashSet<OnTouchSurfaceListener>();
 
@@ -60,7 +60,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 		mHolder = getHolder();
 		mHolder.addCallback(this);
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-		mMatrix = new Matrix();
+		mMatrix = mMatrixInv = new Matrix();
 	}
 
 	public int getFrameWidth() {
@@ -91,8 +91,8 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			Size optimalPreviewSize = CameraUtil.getOptimalPreviewSize(
 					supportedPreviewSizes, width, height);
 
-			mFrameWidth = optimalPreviewSize.width;
-			mFrameHeight = optimalPreviewSize.height;
+			mFrameWidth = optimalPreviewSize.height;
+			mFrameHeight = optimalPreviewSize.width;
 
 			params.setPreviewSize(getFrameWidth(), getFrameHeight());
 
@@ -106,9 +106,13 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			mCamera.setParameters(params);
 
 			mMatrix = new Matrix();
-			float scale = (float) getWidth() / (float) getFrameWidth();
-			mMatrix.setScale(scale, scale);
+			float scale = (float) getWidth() / (float) getFrameHeight();
 
+			mMatrix.setScale(scale, scale);
+			mMatrix.postTranslate(10, -getWidth());
+			mMatrix.postRotate(90);
+			mMatrix.invert(mMatrixInv);
+			
 			/* Now allocate the buffer */
 			params = mCamera.getParameters();
 			int size = params.getPreviewSize().width
@@ -137,6 +141,7 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 					params.getPreviewSize().height);
 
 			/* Now we can start a preview */
+			mCamera.setDisplayOrientation(90);
 			mCamera.startPreview();
 		}
 	}
@@ -180,6 +185,8 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			@Override
 			public void onAutoFocus(boolean success, Camera camera) {
 				mCamera.takePicture(shutter, raw, jpeg);
+				
+				mCamera.startPreview();
 			}
 		});
 	}
@@ -197,13 +204,11 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 
 	public void getYUVAt(byte[] yuv, int x, int y) {
 
-		float[] f = new float[9];
-		mMatrix.getValues(f);
+		float[] dst = new float[2];
+		mMatrixInv.mapPoints(dst, new float[]{x, y});
 
-		float scale = f[Matrix.MSCALE_X];
-
-		x /= scale;
-		y /= scale;
+		x = (int) dst[0];
+		y = (int) dst[1];
 
 		if (x < 0 || x > getFrameWidth() || y < 0 || y > getFrameHeight()) {
 			yuv[0] = yuv[1] = yuv[2] = -1;

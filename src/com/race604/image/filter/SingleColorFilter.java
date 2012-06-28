@@ -25,9 +25,9 @@ public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
 
     @Override
     public void onTakePicture(byte[] data, int width, int height) {
-        
+    	
         BitmapFactory.Options resample = new BitmapFactory.Options();
-        resample.inSampleSize = 4;
+        resample.inSampleSize = 2;
         
         Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, resample);
         data = null;
@@ -36,8 +36,10 @@ public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
         int bmpH = bmp.getHeight();
         int[] rgba = new int[bmpW*bmpH];
         bmp.getPixels(rgba, 0, bmpW, 0, 0, bmpW, bmpH);
-        taken(bmpW, bmpH, rgba, mColor[0], 5);
         bmp.recycle();
+        
+        taken(bmpW, bmpH, rgba, mColor[0], (int) (5*1.5));
+        
         bmp = Bitmap.createBitmap(rgba, bmpW, bmpH, Bitmap.Config.ARGB_8888);
         
         Utils.saveBitmapToFile(bmp);

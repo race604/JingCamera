@@ -1,15 +1,10 @@
 package com.race604.camera;
 
-import com.race604.image.filter.FastFeatureDetector;
-import com.race604.image.filter.SingleColorFilter;
-
 import android.app.Activity;
 import android.graphics.PixelFormat;
-import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,6 +12,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+
+import com.race604.image.filter.SingleColorFilter;
 
 public class CameraActivity extends Activity implements OnClickListener {
 	private static final String TAG = CameraActivity.class.getName();

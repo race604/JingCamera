@@ -16,7 +16,7 @@ public class FastFeatureDetector implements IFilter {
     }
 
     @Override
-    public void onTakePicture(int[] rgba, int[] jpeg, int width, int height) {
+    public void onTakePicture(byte[] data, int width, int height) {
         // TODO Auto-generated method stub
         
     }

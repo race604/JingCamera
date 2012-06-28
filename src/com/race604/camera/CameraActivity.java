@@ -9,6 +9,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,9 +33,8 @@ public class CameraActivity extends Activity implements OnClickListener {
 		}
 	};
 
-	private PictureCallback mJpegCallback = new PhotoHandler(
-			CameraActivity.this);
-
+	private PictureCallback mJpegCallback = null;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,6 +51,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 		mSvCameraView = (FilterSurfaceView) findViewById(R.id.sv_camera_preview);
 
 		SingleColorFilter filter = new SingleColorFilter();
+		mJpegCallback = new PhotoHandler(filter);
 		mSvCameraView.setFilter(filter);
 		mSvCameraView.addOnTouchListener(filter);
 		

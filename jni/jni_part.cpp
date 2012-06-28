@@ -33,48 +33,7 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_FastFeatureDetector_FindFea
     env->ReleaseByteArrayElements(yuv, _yuv, 0);
 }
 
-//JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleColor(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jbyte Y, jbyte U, jbyte V)
-//{
-    //jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
-    //jint*  _bgra = env->GetIntArrayElements(bgra, 0);
-
-	//int frameSize = width * height;
-
-	//int uu = (0xff & U);
-	//int vv = (0xff & V);
-
-	//for (int j = 0; j < height; j+=2) {
-		//int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
-		//for (int i = 0; i < width; i+=2) {
-			//u = (0xff & _yuv[uvp++]);
-			//v = (0xff & _yuv[uvp++]);
-
-			//int dU = u - uu;
-			//int dV = v - vv;
-
-			//if (dU*dU + dV*dV > 255) {
-				//_yuv[uvp-1] = 128;
-				//_yuv[uvp-2] = 128;
-
-			//} 
-		//}
-	//}
-	//Mat myuv(height + height/2, width, CV_8UC1, (unsigned char *)_yuv);
-	//Mat mbgra(height, width, CV_8UC4, (unsigned char *)_bgra);
-	
-	
-
-    ////Please make attention about BGRA byte order
-    ////ARGB stored in java as int array becomes BGRA at native level
-    //cvtColor(myuv, mbgra, CV_YUV420sp2BGR, 4);
-    ////cvtColor(mbgra, mbgra, CV_BGR2HSV);
-    ////cvtColor(mbgra, mbgra, CV_HSV2BGR);
-
-    //env->ReleaseIntArrayElements(bgra, _bgra, 0);
-    //env->ReleaseByteArrayElements(yuv, _yuv, 0);
-//}
-
-JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleColor(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jbyte Y, jbyte U, jbyte V)
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_preview(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jint H, jint T)
 {
     jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
     jint*  _bgra = env->GetIntArrayElements(bgra, 0);
@@ -98,19 +57,29 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
 	unsigned char tmp[4];
 
 	for (int j=0; j<height; ++j){
-		srcUV = srcY + frameSize + (j >> 1)*width;
+		if ((j&1 == 1)) {
+			srcUV -= width;
+		}
 		for (int i=0; i<width; ++i){
 			yuv2rgb(srcY, srcUV, dst, 1);
+
+			rgb2hsv(dst, tmp, 1);
+			int h = tmp[0];
+			if ((h > H - T && h < H + T) ||
+					(h > H - T + 180) || (h < H + T - 180)) {
+			} else {
+				//unsigned char val = SATURATE_CAST_UCHAR(std::max(0, int(srcY[0]) - 16));
+				unsigned char val = dst[0]*0.299f + dst[1]*0.587f + dst[2]*0.114f;
+
+				dst[0] = val;
+				dst[1] = val;
+				dst[2] = val;
+			}
 
 			if ((i&1) == 1){
 				srcUV += 2;
 			}
 			srcY++;
-			
-			rgb2hsv(dst, tmp, 1);
-			if (tmp[0] > 10) {
-				dst[0] = dst[1] = dst[2] = SATURATE_CAST_UCHAR((srcY[0] & 0xff) - 16);
-			}
 
 			dst += 4;
 		}
@@ -120,4 +89,55 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_SingleCol
     env->ReleaseByteArrayElements(yuv, _yuv, 0);
 }
 
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SingleColorFilter_taken(JNIEnv* env, jobject thiz, jint width, jint height, jintArray bgra, jint H, jint T)
+{
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	struct RGB2HSV_b rgb2hsv(4, 0, 180);
+
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	unsigned char tmp[4];
+
+	for (int j=0; j<height; ++j){
+		for (int i=0; i<width; ++i){
+			rgb2hsv(dst, tmp, 1);
+			int h = tmp[0];
+			if ((h > H - T && h < H + T) ||
+					(h > H - T + 180) || (h < H + T - 180)) {
+			} else {
+				//unsigned char val = SATURATE_CAST_UCHAR(std::max(0, int(srcY[0]) - 16));
+				unsigned char val = dst[0]*0.299f + dst[1]*0.587f + dst[2]*0.114f;
+
+				dst[0] = val;
+				dst[1] = val;
+				dst[2] = val;
+			}
+			dst += 4;
+		}
+	}
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+}
+JNIEXPORT void JNICALL Java_com_race604_image_filter_Utils_yuv2rgb(JNIEnv* env, jobject thiz, jbyteArray yuv, jbyteArray bgr)
+{
+    jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
+    jbyte* _bgr = env->GetByteArrayElements(bgr, 0);
+
+	yuv2rgb((uchar*)_yuv, (uchar*)_bgr);
+
+    env->ReleaseByteArrayElements(bgr, _bgr, 0);
+    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_Utils_rgb2hsv(JNIEnv* env, jobject thiz, jbyteArray bgr, jbyteArray hsv)
+{
+    jbyte* _hsv  = env->GetByteArrayElements(hsv, 0);
+    jbyte* _bgr = env->GetByteArrayElements(bgr, 0);
+
+	rgb2hsv((uchar*)_hsv, (uchar*)_bgr);
+
+    env->ReleaseByteArrayElements(bgr, _bgr, 0);
+    env->ReleaseByteArrayElements(hsv, _hsv, 0);
+}
 }

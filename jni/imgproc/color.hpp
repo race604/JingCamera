@@ -18,18 +18,30 @@
 
 #include <limits>
 
-//#define MAX_INT (std::numeric_limits<int>::max())
-//#define MIN_INT (std::numeric_limits<int>::min())
-//#define MAX_UCHAR (std::numeric_limits<uchar>::max())
-//#define MIN_UCHAR (std::numeric_limits<int>::min())
-
-#define SATURATE_CAST_INT(v) ((v) >  INT_MAX ? INT_MAX : ((v) < INT_MIN ? INT_MIN : (int)(v)))
-#define SATURATE_CAST_UCHAR(v) ((v) >  UCHAR_MAX ? UCHAR_MAX : ((v) < 0 ? 0 : (uchar)(v)))
+//#define SATURATE_CAST_INT(v) ((v) >  INT_MAX ? INT_MAX : ((v) < INT_MIN ? INT_MIN : (int)(v)))
+//#define SATURATE_CAST_UCHAR(v) ((v) >  UCHAR_MAX ? UCHAR_MAX : ((v) < 0 ? 0 : (uchar)(v)))
 
 #define CALC_MIN(a,b) ((a) < (b) ? (a) : (b))
 #define CALC_MAX(a,b) ((a) > (b) ? (a) : (b))
- 
 
+
+inline uchar SATURATE_CAST_UCHAR(int v) {
+	if(v > 255) 
+		return 255;
+	else if(v < 0)
+		return 0;
+	return (uchar)v;
+}
+ 
+inline int SATURATE_CAST_INT(float v) {
+	if(v > INT_MAX) 
+		return INT_MAX;
+	else if(v < INT_MIN)
+		return INT_MIN;
+	else
+		return (int)v;
+}
+ 
 ////////////////////////////////////// RGB <-> HSV ///////////////////////////////////////
 
 
@@ -100,6 +112,11 @@ struct RGB2HSV_b
     int srccn, blueIdx, hrange;
 };    
 
+void rgb2hsv(uchar* bgr, uchar* hsv){
+	struct RGB2HSV_b rgb2hsv(3, 0, 180);
+
+	rgb2hsv(bgr, hsv, 1);
+}
 
 ////////////////////////////////////// YUV420sp <-> RGBA ///////////////////////////////////////
 struct YUV420sp2RGB
@@ -124,27 +141,23 @@ struct YUV420sp2RGB
         
         for( i = 0; i < n; i++, dst += dcn, srcY++ )
         {
-            int y = (0xff & srcY[0]) - 16;
+            int y = std::max(0, int(srcY[0]) - 16);
 			if ((i&1) == 0) {
-				u = (0xff & srcUV[0]) - 128;
-				v = (0xff & srcUV[1]) - 128;
+				u = int(srcUV[0]) - 128;
+				v = int(srcUV[1]) - 128;
 				srcUV += 2;
 			}
-			int y1192 = 1192 * y;
-			int r = (y1192 + 1634 * v);
-			int g = (y1192 - 833 * v - 400 * u);
-			int b = (y1192 + 2066 * u);
+			int y20 = 1220542 * y;
+			int r = (y20 + 1673527 * v + (1 << 19));
+			int g = (y20 - 852492 * v - 409993 * u + (1 << 19));
+			int b = (y20 + 2116026 * u + (1 << 19));
 
-			if (r < 0) r = 0; else if (r > 262143) r = 262143;
-			if (g < 0) g = 0; else if (g > 262143) g = 262143;
-			if (b < 0) b = 0; else if (b > 262143) b = 262143;
-
-			dst[bIdx] = (r >> 10) & 0xff;
-			dst[1] = (g >> 10) & 0xff;
-			dst[bIdx^2] = (b >> 10) & 0xff;
+			dst[bIdx] = SATURATE_CAST_UCHAR(r >> 20);
+			dst[1] = SATURATE_CAST_UCHAR(g >> 20);
+			dst[bIdx^2] = SATURATE_CAST_UCHAR(b >> 20);
 			dst[3] = 0xff;
 			
-			//int val = y - 16;
+			//int val = y;
 			//if (val < 0) val = 0; else if (val > 255) val = 255;
 			
 			//dst[0] = val;
@@ -154,3 +167,9 @@ struct YUV420sp2RGB
         }
     }
 };
+
+void yuv2rgb(uchar* yuv, uchar* bgr){
+	struct YUV420sp2RGB yuv2rgb(3, 0);
+
+	yuv2rgb(yuv, yuv+1, bgr, 1);
+}

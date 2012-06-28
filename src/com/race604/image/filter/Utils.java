@@ -1,6 +1,24 @@
 package com.race604.image.filter;
 
+import android.graphics.Bitmap;
+import android.os.Environment;
+import android.util.Log;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class Utils {
+    
+    static {
+        System.loadLibrary("jing_native");
+    }
+
+    public static native void yuv2rgb(byte yuv[], byte[] bgr);
+    
+    public static native void rgb2hsv(byte bgr[], byte[] hsv);
     
     
     /**
@@ -58,5 +76,35 @@ public class Utils {
         yuv[0]= y;
         yuv[1]= u;
         yuv[2]= v;
+    }
+    
+    public static File getImgDir() {
+        File sdDir = Environment
+          .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        return new File(sdDir, "JingCamera");
+    }
+    
+    public static void saveBitmapToFile(Bitmap bmp) {
+        File pictureFileDir = getImgDir();
+
+        if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
+            return;
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+        String date = dateFormat.format(new Date());
+        String photoFile = "JCAM_" + date + ".jpg";
+
+        String filename = pictureFileDir.getPath() + File.separator + photoFile;
+
+        File pictureFile = new File(filename);
+
+        try {
+            FileOutputStream fos = new FileOutputStream(pictureFile);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception error) {
+        }
     }
 }

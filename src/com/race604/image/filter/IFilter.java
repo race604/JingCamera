@@ -12,6 +12,6 @@ public interface IFilter {
 	 * 			Image height
 	 */
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height);
-	public void onTakePicture(int[] rgba, int[] jpeg, int width, int height);
+	public void onTakePicture(byte[] data, int width, int height);
 	public void onInit();
 }

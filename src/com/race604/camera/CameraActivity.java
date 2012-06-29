@@ -6,9 +6,10 @@ import com.race604.image.filter.SingleColorFilter;
 
 import android.app.Activity;
 import android.graphics.PixelFormat;
-import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,14 +25,51 @@ public class CameraActivity extends Activity implements OnClickListener {
 	private SurfaceHolder mSurfaceHolder;
 	private Button mCaptureBtn;
 	private CheckBox mAutofocusCk;
+	
+	private static final int MENU_FILER_SINGLE_COLOR = 11;
+	private static final int MENU_FILER_LOMO = 12;
+	
 
-	private ShutterCallback mShutterCallback = new ShutterCallback() {
+	@Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+	    menu.clear();
+        MenuItem mi = null;
+
+        mi = menu.add(Menu.NONE, MENU_FILER_SINGLE_COLOR, Menu.NONE, "单色");
+        mi = menu.add(Menu.NONE, MENU_FILER_LOMO, Menu.NONE, "Lomo");
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case MENU_FILER_SINGLE_COLOR: {
+                IFilter filter = new SingleColorFilter();
+                mJpegCallback.setFilter(filter);
+                mSvCameraView.setFilter(filter);
+                break;
+            }
+            case MENU_FILER_LOMO: {
+                IFilter filter = new LomoFilter();
+                mJpegCallback.setFilter(filter);
+                mSvCameraView.setFilter(filter);
+            }
+            default:
+                break;
+        }
+        
+        return true;
+    }
+
+    private ShutterCallback mShutterCallback = new ShutterCallback() {
 		@Override
 		public void onShutter() {
 			// TODO
 		}
 	};
-
+	
 	private PhotoHandler mJpegCallback = null;
 	
 	/** Called when the activity is first created. */

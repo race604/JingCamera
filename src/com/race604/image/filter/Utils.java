@@ -2,7 +2,7 @@ package com.race604.image.filter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.hardware.Camera;
+import android.hardware.SensorManager;
 import android.media.ExifInterface;
 import android.os.Environment;
 import android.view.Surface;
@@ -89,24 +89,45 @@ public class Utils {
     
     
     public static int getOrientationForExif(Context context) {
-        int rotation = ((WindowManager) context
-                .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay()
-                .getRotation();
-        int degrees = ExifInterface.ORIENTATION_UNDEFINED;
-        switch (rotation) {
-        case Surface.ROTATION_0:
-            degrees = ExifInterface.ORIENTATION_NORMAL;
-            break;
-        case Surface.ROTATION_90:
-            degrees = ExifInterface.ORIENTATION_ROTATE_90;
-            break;
-        case Surface.ROTATION_180:
-            degrees = ExifInterface.ORIENTATION_ROTATE_180;
-            break;
-        case Surface.ROTATION_270:
-            degrees = ExifInterface.ORIENTATION_ROTATE_270;
-            break;
+        
+        float orientation = 0;
+        float[] rotationMatrix = new float[9];
+        if(SensorManager.getRotationMatrix(rotationMatrix, null, null, null)){
+            float[] orientMatrix = new float[3];
+            SensorManager.getOrientation(rotationMatrix, orientMatrix);
+
+            orientation = orientMatrix[0]*180/(float)Math.PI;
         }
+        
+        int degrees = ExifInterface.ORIENTATION_UNDEFINED;
+        if (orientation > -45 && orientation <= 45) {
+            degrees = ExifInterface.ORIENTATION_NORMAL;
+        } else if (orientation > 45 && orientation <= 135) {
+            degrees = ExifInterface.ORIENTATION_ROTATE_90;
+        } else if (orientation > 135 || orientation < -135) {
+            degrees = ExifInterface.ORIENTATION_ROTATE_180;
+        } else {
+            degrees = ExifInterface.ORIENTATION_ROTATE_270;
+        }
+        
+//        int rotation = ((WindowManager) context
+//                .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay()
+//                .getRotation();
+//        
+//        switch (rotation) {
+//        case Surface.ROTATION_0:
+//            degrees = ExifInterface.ORIENTATION_NORMAL;
+//            break;
+//        case Surface.ROTATION_90:
+//            degrees = ExifInterface.ORIENTATION_ROTATE_90;
+//            break;
+//        case Surface.ROTATION_180:
+//            degrees = ExifInterface.ORIENTATION_ROTATE_180;
+//            break;
+//        case Surface.ROTATION_270:
+//            degrees = ExifInterface.ORIENTATION_ROTATE_270;
+//            break;
+//        }
 
         return degrees;
     }

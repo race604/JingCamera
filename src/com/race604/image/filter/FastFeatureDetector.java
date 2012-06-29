@@ -1,5 +1,9 @@
 package com.race604.image.filter;
 
+import com.race604.camera.SurfaceViewBase;
+
+import android.view.MotionEvent;
+
 public class FastFeatureDetector implements IFilter {
 
     private int mColor;
@@ -16,13 +20,19 @@ public class FastFeatureDetector implements IFilter {
     }
 
     @Override
-    public void onTakePicture(byte[] data, int width, int height) {
+    public void onInit() {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void onInit() {
+    public boolean onTouchSurface(SurfaceViewBase surfaceView, MotionEvent envent) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void onTakePicture(int[] data, int width, int height) {
         // TODO Auto-generated method stub
         
     }

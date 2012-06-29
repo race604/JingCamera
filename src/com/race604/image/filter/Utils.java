@@ -1,9 +1,12 @@
 package com.race604.image.filter;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -84,7 +87,31 @@ public class Utils {
         return new File(sdDir, "JingCamera");
     }
     
-    public static void saveBitmapToFile(Bitmap bmp) {
+    
+    public static int getOrientationForExif(Context context) {
+        int rotation = ((WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay()
+                .getRotation();
+        int degrees = ExifInterface.ORIENTATION_UNDEFINED;
+        switch (rotation) {
+        case Surface.ROTATION_0:
+            degrees = ExifInterface.ORIENTATION_NORMAL;
+            break;
+        case Surface.ROTATION_90:
+            degrees = ExifInterface.ORIENTATION_ROTATE_90;
+            break;
+        case Surface.ROTATION_180:
+            degrees = ExifInterface.ORIENTATION_ROTATE_180;
+            break;
+        case Surface.ROTATION_270:
+            degrees = ExifInterface.ORIENTATION_ROTATE_270;
+            break;
+        }
+
+        return degrees;
+    }
+    
+    public static void saveBitmapToFile(Context context, Bitmap bmp) {
         File pictureFileDir = getImgDir();
 
         if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
@@ -104,6 +131,14 @@ public class Utils {
             bmp.compress(Bitmap.CompressFormat.JPEG, 90, fos);
             fos.flush();
             fos.close();
+            
+            if (pictureFile.exists()) {
+                ExifInterface exif = new ExifInterface(filename);
+                int oritention = getOrientationForExif(context);
+                exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(oritention));
+                exif.saveAttributes();
+            }
+            
         } catch (Exception error) {
         }
     }

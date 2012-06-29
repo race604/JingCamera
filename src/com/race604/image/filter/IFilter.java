@@ -1,6 +1,8 @@
 package com.race604.image.filter;
 
-public interface IFilter {
+import com.race604.camera.SurfaceViewBase.OnTouchSurfaceListener;
+
+public interface IFilter extends OnTouchSurfaceListener {
 	/**
 	 * @param rgba
 	 * 			Out put RGBA
@@ -12,6 +14,6 @@ public interface IFilter {
 	 * 			Image height
 	 */
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height);
-	public void onTakePicture(byte[] data, int width, int height);
+	public void onTakePicture(int[] data, int width, int height);
 	public void onInit();
 }

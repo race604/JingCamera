@@ -1,15 +1,15 @@
 package com.race604.image.filter;
 
 import com.race604.camera.SurfaceViewBase;
-import com.race604.camera.SurfaceViewBase.OnTouchSurfaceListener;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.MotionEvent;
 
-public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
+public class SingleColorFilter implements IFilter{
 
 	private byte[] mColor = new byte[3];
+	
+	public SingleColorFilter() {
+	}
 	
 	@Override
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height) {
@@ -24,32 +24,14 @@ public class SingleColorFilter implements IFilter, OnTouchSurfaceListener {
     }
 
     @Override
-    public void onTakePicture(byte[] data, int width, int height) {
+    public void onTakePicture(int[] rgba, int width, int height) {
     	
-        BitmapFactory.Options resample = new BitmapFactory.Options();
-        resample.inSampleSize = 2;
+        taken(width, height, rgba, mColor[0], (int) (5*1.5));
         
-        Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length, resample);
-        data = null;
-        
-        int bmpW = bmp.getWidth();
-        int bmpH = bmp.getHeight();
-        int[] rgba = new int[bmpW*bmpH];
-        bmp.getPixels(rgba, 0, bmpW, 0, 0, bmpW, bmpH);
-        bmp.recycle();
-        
-        taken(bmpW, bmpH, rgba, mColor[0], (int) (5*1.5));
-        
-        bmp = Bitmap.createBitmap(rgba, bmpW, bmpH, Bitmap.Config.ARGB_8888);
-        
-        Utils.saveBitmapToFile(bmp);
-        bmp.recycle();
-        System.gc();
     }
 
     @Override
     public void onInit() {
-        // TODO Auto-generated method stub
         
     }
 

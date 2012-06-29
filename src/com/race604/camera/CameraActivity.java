@@ -1,5 +1,9 @@
 package com.race604.camera;
 
+import com.race604.image.filter.IFilter;
+import com.race604.image.filter.LomoFilter;
+import com.race604.image.filter.SingleColorFilter;
+
 import android.app.Activity;
 import android.graphics.PixelFormat;
 import android.hardware.Camera.PictureCallback;
@@ -12,8 +16,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-
-import com.race604.image.filter.SingleColorFilter;
 
 public class CameraActivity extends Activity implements OnClickListener {
 	private static final String TAG = CameraActivity.class.getName();
@@ -30,7 +32,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 		}
 	};
 
-	private PictureCallback mJpegCallback = null;
+	private PhotoHandler mJpegCallback = null;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -46,11 +48,12 @@ public class CameraActivity extends Activity implements OnClickListener {
 		mCaptureBtn = (Button) findViewById(R.id.btn_capture);
 		mAutofocusCk = (CheckBox) findViewById(R.id.ck_auto_focus);
 		mSvCameraView = (FilterSurfaceView) findViewById(R.id.sv_camera_preview);
+		
+		mJpegCallback = new PhotoHandler(this);
 
-		SingleColorFilter filter = new SingleColorFilter();
-		mJpegCallback = new PhotoHandler(filter);
-		mSvCameraView.setFilter(filter);
-		mSvCameraView.addOnTouchListener(filter);
+		IFilter filter = new SingleColorFilter();
+		mJpegCallback.setFilter(filter);
+        mSvCameraView.setFilter(filter);
 		
 		mCaptureBtn.setOnClickListener(this);
 	}

@@ -28,6 +28,7 @@ public class FilterSurfaceView extends SurfaceViewBase {
 	
 	public void setFilter(IFilter filter) {
 		mFilter = filter;
+		setOnTouchSurfaceListener(filter);
 	}
 
 	@Override

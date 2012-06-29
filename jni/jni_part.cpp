@@ -4,6 +4,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <vector>
 #include "imgproc/color.hpp"
+#include "imgproc/filter.h"
 
 using namespace std;
 using namespace cv;
@@ -140,4 +141,44 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_Utils_rgb2hsv(JNIEnv* env, 
     env->ReleaseByteArrayElements(bgr, _bgr, 0);
     env->ReleaseByteArrayElements(hsv, _hsv, 0);
 }
+
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_LomoFilter_preview(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra)
+{
+    jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	struct YUV420sp2RGB yuv2rgb(4, 0);
+
+	int frameSize = width*height;
+
+	unsigned char * srcY = (unsigned char *)_yuv;
+	unsigned char * srcUV = srcY + frameSize;
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	for(int j=0; j<height; ++j){
+		yuv2rgb(srcY, srcUV, dst, width);
+		srcY += width;
+		if((j&1) == 1){
+			srcUV += width;
+		}
+		dst += (width<<2);
+	}
+	dst = (unsigned char *)_bgra;
+	llomo(dst, width, height, width>>1, height>>1);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_LomoFilter_taken(JNIEnv* env, jobject thiz, jint width, jint height, jintArray bgra)
+{
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	unsigned char * dst = (unsigned char *)_bgra;
+	llomo(dst, width, height, width>>1, height>>1);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+}
+
 }

@@ -39,7 +39,8 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 	private byte[] mBuffer;
 	private Matrix mMatrix, mMatrixInv;
 
-	private HashSet<OnTouchSurfaceListener> mTouchListeners = new HashSet<OnTouchSurfaceListener>();
+//	private HashSet<OnTouchSurfaceListener> mTouchListeners = new HashSet<OnTouchSurfaceListener>();
+	private OnTouchSurfaceListener mTouchListener = null;
 
 	public SurfaceViewBase(Context context) {
 		super(context);
@@ -103,6 +104,9 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 			} else if (FocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 				params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 			}
+			
+			params.setRotation(90);
+			
 			mCamera.setParameters(params);
 
 			mMatrix = new Matrix();
@@ -191,15 +195,17 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 		});
 	}
 
-	public void addOnTouchListener(OnTouchSurfaceListener l) {
-		if (mTouchListeners.contains(l)) {
-			return;
-		}
-		mTouchListeners.add(l);
+	protected void setOnTouchSurfaceListener(OnTouchSurfaceListener l) {
+//		if (mTouchListeners.contains(l)) {
+//			return;
+//		}
+//		mTouchListeners.add(l);
+	    mTouchListener = l;
 	}
 
-	public void removeOnTouchListener(OnTouchListener l) {
-		mTouchListeners.remove(l);
+	protected void removeOnTouchListener(OnTouchListener l) {
+//		mTouchListeners.remove(l);
+	    mTouchListener = null;
 	}
 
 	public void getYUVAt(byte[] yuv, int x, int y) {
@@ -237,11 +243,16 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
-		for (OnTouchSurfaceListener l : mTouchListeners) {
-			if (l.onTouchSurface(this, event)) {
-				return true;
-			}
-		}
+//		for (OnTouchSurfaceListener l : mTouchListeners) {
+//			if (l.onTouchSurface(this, event)) {
+//				return true;
+//			}
+//		}
+	    if (mTouchListener != null) {
+            if (mTouchListener.onTouchSurface(this, event)) {
+                return true;
+            }
+	    }
 
 		return super.onTouchEvent(event);
 	}

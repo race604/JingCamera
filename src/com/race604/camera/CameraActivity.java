@@ -9,16 +9,14 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.ImageButton;
 
 import com.race604.image.filter.IFilter;
 import com.race604.image.filter.LomoFilter;
@@ -29,9 +27,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 	private static final String TAG = CameraActivity.class.getName();
 
 	private FilterSurfaceView mSvCameraView;
-	private SurfaceHolder mSurfaceHolder;
-	private Button mCaptureBtn;
-	private CheckBox mAutofocusCk;
+	private ImageButton mCaptureBtn;
 
 	private float mAccelerometer[] = new float[3];
 	private float mMagnetic[] = new float[3];
@@ -121,8 +117,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 		setContentView(R.layout.camera_layout);
 
-		mCaptureBtn = (Button) findViewById(R.id.btn_capture);
-		mAutofocusCk = (CheckBox) findViewById(R.id.ck_auto_focus);
+		mCaptureBtn = (ImageButton) findViewById(R.id.btn_capture);
 		mSvCameraView = (FilterSurfaceView) findViewById(R.id.sv_camera_preview);
 
 		mJpegCallback = new PhotoHandler(this);

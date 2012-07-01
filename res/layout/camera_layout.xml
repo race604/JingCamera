@@ -16,20 +16,18 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:background="#3000"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="horizontal" >
 
-        <Button
+        <ImageButton
             android:id="@+id/btn_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_shutter"
+            android:background="#0000"
             android:text="@string/capture" />
 
-        <CheckBox
-            android:id="@+id/ck_auto_focus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/auto_focus" />
+
     </LinearLayout>
 
 </RelativeLayout>

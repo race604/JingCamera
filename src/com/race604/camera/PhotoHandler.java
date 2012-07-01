@@ -21,6 +21,8 @@ public class PhotoHandler implements PictureCallback {
     private IFilter mFilter;
 
     private Context mContext;
+    
+    private float mOritention;
 
     public PhotoHandler(Context context) {
         this.mContext = context;
@@ -28,6 +30,10 @@ public class PhotoHandler implements PictureCallback {
 
     public void setFilter(IFilter filter) {
         this.mFilter = filter;
+    }
+    
+    public void setOritention(float o) {
+    	this.mOritention = o;
     }
 
     @Override
@@ -52,7 +58,7 @@ public class PhotoHandler implements PictureCallback {
         
         bmp = Bitmap.createBitmap(rgba, bmpW, bmpH, Bitmap.Config.ARGB_8888);
 
-        Utils.saveBitmapToFile(mContext, bmp);
+        Utils.saveBitmapToFile(bmp, mOritention);
         bmp.recycle();
         System.gc();
 

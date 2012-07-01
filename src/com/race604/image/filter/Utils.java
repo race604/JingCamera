@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.hardware.SensorManager;
 import android.media.ExifInterface;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
@@ -88,51 +89,23 @@ public class Utils {
     }
     
     
-    public static int getOrientationForExif(Context context) {
-        
-        float orientation = 0;
-        float[] rotationMatrix = new float[9];
-        if(SensorManager.getRotationMatrix(rotationMatrix, null, null, null)){
-            float[] orientMatrix = new float[3];
-            SensorManager.getOrientation(rotationMatrix, orientMatrix);
-
-            orientation = orientMatrix[0]*180/(float)Math.PI;
-        }
-        
-        int degrees = ExifInterface.ORIENTATION_UNDEFINED;
-        if (orientation > -45 && orientation <= 45) {
-            degrees = ExifInterface.ORIENTATION_NORMAL;
-        } else if (orientation > 45 && orientation <= 135) {
-            degrees = ExifInterface.ORIENTATION_ROTATE_90;
-        } else if (orientation > 135 || orientation < -135) {
-            degrees = ExifInterface.ORIENTATION_ROTATE_180;
+    public static int getOrientationForExif(float degrees) {
+    	
+        int orientation = ExifInterface.ORIENTATION_UNDEFINED;
+        if (degrees > -35 && degrees <= 35) {
+        	orientation = ExifInterface.ORIENTATION_NORMAL;
+        } else if (degrees > 35 && degrees <= 145) {
+        	orientation = ExifInterface.ORIENTATION_ROTATE_270;
+        } else if (degrees < -35 || degrees < -125) {
+        	orientation = ExifInterface.ORIENTATION_ROTATE_90;
         } else {
-            degrees = ExifInterface.ORIENTATION_ROTATE_270;
+        	orientation = ExifInterface.ORIENTATION_ROTATE_270;
         }
         
-//        int rotation = ((WindowManager) context
-//                .getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay()
-//                .getRotation();
-//        
-//        switch (rotation) {
-//        case Surface.ROTATION_0:
-//            degrees = ExifInterface.ORIENTATION_NORMAL;
-//            break;
-//        case Surface.ROTATION_90:
-//            degrees = ExifInterface.ORIENTATION_ROTATE_90;
-//            break;
-//        case Surface.ROTATION_180:
-//            degrees = ExifInterface.ORIENTATION_ROTATE_180;
-//            break;
-//        case Surface.ROTATION_270:
-//            degrees = ExifInterface.ORIENTATION_ROTATE_270;
-//            break;
-//        }
-
-        return degrees;
+        return orientation;
     }
     
-    public static void saveBitmapToFile(Context context, Bitmap bmp) {
+    public static void saveBitmapToFile(Bitmap bmp, float degree) {
         File pictureFileDir = getImgDir();
 
         if (!pictureFileDir.exists() && !pictureFileDir.mkdirs()) {
@@ -155,12 +128,13 @@ public class Utils {
             
             if (pictureFile.exists()) {
                 ExifInterface exif = new ExifInterface(filename);
-                int oritention = getOrientationForExif(context);
+                int oritention = getOrientationForExif(degree);
                 exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(oritention));
                 exif.saveAttributes();
             }
             
         } catch (Exception error) {
+        	Log.d("ExifInterface", error.toString());
         }
     }
 }

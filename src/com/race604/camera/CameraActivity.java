@@ -2,6 +2,7 @@ package com.race604.camera;
 
 import com.race604.image.filter.IFilter;
 import com.race604.image.filter.LomoFilter;
+import com.race604.image.filter.OilsFilter;
 import com.race604.image.filter.ReliefFilter;
 import com.race604.image.filter.SingleColorFilter;
 import com.race604.image.filter.SpherizeFilter;
@@ -44,6 +45,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 	private static final int MENU_FILER_SHRINK = 13;
 	private static final int MENU_FILER_RELIEF = 14;
 	private static final int MENU_FILER_SUNSHINE = 15;
+	private static final int MENU_FILER_OILS = 16;
 
 	private SensorEventListener mSensorEventListener = new SensorEventListener() {
 
@@ -78,7 +80,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 		mi = menu.add(Menu.NONE, MENU_FILER_LOMO, Menu.NONE, "Lomo");
 		mi = menu.add(Menu.NONE, MENU_FILER_SHRINK, Menu.NONE, "Shrink");
 		mi = menu.add(Menu.NONE, MENU_FILER_RELIEF, Menu.NONE, "Relief");
-		mi = menu.add(Menu.NONE, MENU_FILER_SUNSHINE, Menu.NONE, "Sunshine");
+		mi = menu.add(Menu.NONE, MENU_FILER_OILS, Menu.NONE, "Oils");
 
 		return true;
 	}
@@ -117,6 +119,12 @@ public class CameraActivity extends Activity implements OnClickListener {
             mSvCameraView.setFilter(filter);
             break;
         }
+		case MENU_FILER_OILS: {
+            IFilter filter = new OilsFilter();
+            mJpegCallback.setFilter(filter);
+            mSvCameraView.setFilter(filter);
+            break;
+        }
 		default:
 			break;
 		}
@@ -149,7 +157,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 		mJpegCallback = new PhotoHandler(this);
 
-		IFilter filter = new ReliefFilter();
+		IFilter filter = new OilsFilter();
 		mJpegCallback.setFilter(filter);
 		mSvCameraView.setFilter(filter);
 

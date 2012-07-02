@@ -11,10 +11,10 @@ public class SunshineFilter implements IFilter {
     public native void taken(int width, int height, int[] rgba, int x, int y, int radius, int strength);
     
     private int mWidth, mHeight;
-    private float mRange = 0.05f;
+    private float mRange = 0.3f;
     
     private int mX = 50, mY = 50, mRadius;
-    private int mStrength = 100;
+    private int mStrength = 80;
 
     static {
         System.loadLibrary("jing_native");

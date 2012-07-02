@@ -15,6 +15,7 @@
  *
  * =====================================================================================
  */
+#include <cstdlib>
 #include <math.h>
 
 inline int interpolation(float px,float py,int ll,int lh,int hl,int hh){
@@ -161,15 +162,15 @@ void sunshine(uchar* rgba, int w, int h, int x, int y, int raidus, int strength)
 
 	for(int j=startY; j<endY; ++j){
 		p = rgba + (j*w + startX)*4;
-		for(int i=startX; i<endY; ++i){
+		for(int i=startX; i<endX; ++i){
 			dx = i - x;
 			dy = j - y;
 			d = dx*dx + dy*dy;
 			if ( d <= r2){
-				delta = strength * ( 1.0 - sqrt(d)) / raidus;
-				p[0] = std::min(255, p[0]+delta);
-				p[1] = std::min(255, p[1]+delta);
-				p[2] = std::min(255, p[2]+delta);
+				delta = strength * ( 1.0f - sqrt(d)/raidus);
+				p[0] = std::min(255, (int)p[0]+delta);
+				p[1] = std::min(255, (int)p[1]+delta);
+				p[2] = std::min(255, (int)p[2]+delta);
 			}
 			p += 4;
 		}
@@ -177,3 +178,23 @@ void sunshine(uchar* rgba, int w, int h, int x, int y, int raidus, int strength)
 
 }
 
+void oils(uchar* rgba, int w, int h, int strength){
+
+	int delta;
+	uchar *p;
+
+	for(int j = 0; j<w-strength; ++j){
+		for(int i=0; i<h-strength; ++i){
+			delta = rand() % strength;
+			p = rgba + delta*(w + 1)*4;
+
+			rgba[0] = p[0];
+			rgba[1] = p[1];
+			rgba[2] = p[2];
+
+			rgba += 4;
+		}
+		rgba += strength*4;
+	}
+
+}

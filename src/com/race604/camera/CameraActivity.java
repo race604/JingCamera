@@ -78,7 +78,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 		mi = menu.add(Menu.NONE, MENU_FILER_LOMO, Menu.NONE, "Lomo");
 		mi = menu.add(Menu.NONE, MENU_FILER_SHRINK, Menu.NONE, "Shrink");
 		mi = menu.add(Menu.NONE, MENU_FILER_RELIEF, Menu.NONE, "Relief");
-		mi = menu.add(Menu.NONE, MENU_FILER_RELIEF, Menu.NONE, "Sunshine");
+		mi = menu.add(Menu.NONE, MENU_FILER_SUNSHINE, Menu.NONE, "Sunshine");
 
 		return true;
 	}

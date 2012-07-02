@@ -229,13 +229,11 @@ public abstract class SurfaceViewBase extends SurfaceView implements
 
 	public Point getPointAt(int x, int y) {
 
-		float[] f = new float[9];
-		mMatrix.getValues(f);
+	    float[] dst = new float[2];
+        mMatrixInv.mapPoints(dst, new float[]{x, y});
 
-		float scale = f[Matrix.MSCALE_X];
-
-		x /= scale;
-		y /= scale;
+        x = (int) dst[0];
+        y = (int) dst[1];
 
 		return new Point(x, y);
 	}

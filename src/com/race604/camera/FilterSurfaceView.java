@@ -29,6 +29,10 @@ public class FilterSurfaceView extends SurfaceViewBase {
 	public void setFilter(IFilter filter) {
 		mFilter = filter;
 		setOnTouchSurfaceListener(filter);
+		
+		if (mFilter != null) {
+		    mFilter.onInit(getFrameWidth(), getFrameHeight());
+		}
 	}
 
 	@Override
@@ -58,6 +62,10 @@ public class FilterSurfaceView extends SurfaceViewBase {
 		mRGBA = new int[mFrameSize];
 		mBitmap = Bitmap.createBitmap(previewWidtd, previewHeight,
 				Bitmap.Config.ARGB_8888);
+		
+		if (mFilter != null) {
+            mFilter.onInit(previewWidtd, previewHeight);
+        }
 	}
 
 	@Override

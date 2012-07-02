@@ -15,5 +15,5 @@ public interface IFilter extends OnTouchSurfaceListener {
 	 */
 	public void onPreview(int[] rgba, byte[] yuv, int width, int height);
 	public void onTakePicture(int[] data, int width, int height);
-	public void onInit();
+	public void onInit(int width, int height);
 }

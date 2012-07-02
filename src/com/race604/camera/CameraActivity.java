@@ -1,5 +1,12 @@
 package com.race604.camera;
 
+import com.race604.image.filter.IFilter;
+import com.race604.image.filter.LomoFilter;
+import com.race604.image.filter.ReliefFilter;
+import com.race604.image.filter.SingleColorFilter;
+import com.race604.image.filter.SpherizeFilter;
+import com.race604.image.filter.SunshineFilter;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -15,12 +22,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
-
-import com.race604.image.filter.IFilter;
-import com.race604.image.filter.LomoFilter;
-import com.race604.image.filter.SingleColorFilter;
 
 public class CameraActivity extends Activity implements OnClickListener {
 
@@ -39,6 +41,9 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 	private static final int MENU_FILER_SINGLE_COLOR = 11;
 	private static final int MENU_FILER_LOMO = 12;
+	private static final int MENU_FILER_SHRINK = 13;
+	private static final int MENU_FILER_RELIEF = 14;
+	private static final int MENU_FILER_SUNSHINE = 15;
 
 	private SensorEventListener mSensorEventListener = new SensorEventListener() {
 
@@ -69,8 +74,11 @@ public class CameraActivity extends Activity implements OnClickListener {
 		menu.clear();
 		MenuItem mi = null;
 
-		mi = menu.add(Menu.NONE, MENU_FILER_SINGLE_COLOR, Menu.NONE, "单色");
+		mi = menu.add(Menu.NONE, MENU_FILER_SINGLE_COLOR, Menu.NONE, "One Color");
 		mi = menu.add(Menu.NONE, MENU_FILER_LOMO, Menu.NONE, "Lomo");
+		mi = menu.add(Menu.NONE, MENU_FILER_SHRINK, Menu.NONE, "Shrink");
+		mi = menu.add(Menu.NONE, MENU_FILER_RELIEF, Menu.NONE, "Relief");
+		mi = menu.add(Menu.NONE, MENU_FILER_RELIEF, Menu.NONE, "Sunshine");
 
 		return true;
 	}
@@ -89,7 +97,26 @@ public class CameraActivity extends Activity implements OnClickListener {
 			IFilter filter = new LomoFilter();
 			mJpegCallback.setFilter(filter);
 			mSvCameraView.setFilter(filter);
+			break;
 		}
+		case MENU_FILER_SHRINK: {
+            IFilter filter = new SpherizeFilter();
+            mJpegCallback.setFilter(filter);
+            mSvCameraView.setFilter(filter);
+            break;
+        }
+		case MENU_FILER_RELIEF: {
+            IFilter filter = new ReliefFilter();
+            mJpegCallback.setFilter(filter);
+            mSvCameraView.setFilter(filter);
+            break;
+        }
+		case MENU_FILER_SUNSHINE: {
+            IFilter filter = new SunshineFilter();
+            mJpegCallback.setFilter(filter);
+            mSvCameraView.setFilter(filter);
+            break;
+        }
 		default:
 			break;
 		}
@@ -122,7 +149,7 @@ public class CameraActivity extends Activity implements OnClickListener {
 
 		mJpegCallback = new PhotoHandler(this);
 
-		IFilter filter = new SingleColorFilter();
+		IFilter filter = new ReliefFilter();
 		mJpegCallback.setFilter(filter);
 		mSvCameraView.setFilter(filter);
 

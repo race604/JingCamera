@@ -20,7 +20,7 @@ public class FastFeatureDetector implements IFilter {
     }
 
     @Override
-    public void onInit() {
+    public void onInit(int width, int height) {
         // TODO Auto-generated method stub
         
     }

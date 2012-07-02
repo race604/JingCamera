@@ -31,7 +31,7 @@ public class SingleColorFilter implements IFilter{
     }
 
     @Override
-    public void onInit() {
+    public void onInit(int width, int height) {
         
     }
 

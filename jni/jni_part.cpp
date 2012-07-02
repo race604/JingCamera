@@ -181,4 +181,119 @@ JNIEXPORT void JNICALL Java_com_race604_image_filter_LomoFilter_taken(JNIEnv* en
     env->ReleaseIntArrayElements(bgra, _bgra, 0);
 }
 
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SpherizeFilter_preview(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jint x, jint y, jint range, jfloat scale)
+{
+    jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	struct YUV420sp2RGB yuv2rgb(4, 0);
+
+	int frameSize = width*height;
+
+	unsigned char * srcY = (unsigned char *)_yuv;
+	unsigned char * srcUV = srcY + frameSize;
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	for(int j=0; j<height; ++j){
+		yuv2rgb(srcY, srcUV, dst, width);
+		srcY += width;
+		if((j&1) == 1){
+			srcUV += width;
+		}
+		dst += (width<<2);
+	}
+	dst = (unsigned char *)_bgra;
+	spherize(dst, width, height, x, y, range, scale);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SpherizeFilter_taken(JNIEnv* env, jobject thiz, jint width, jint height, jintArray bgra, jint x, jint y, jint range, jfloat scale)
+{
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	unsigned char * dst = (unsigned char *)_bgra;
+	spherize(dst, width, height, x, y, range, scale);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_ReliefFilter_preview(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra)
+{
+    jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	struct YUV420sp2RGB yuv2rgb(4, 0);
+
+	int frameSize = width*height;
+
+	unsigned char * srcY = (unsigned char *)_yuv;
+	unsigned char * srcUV = srcY + frameSize;
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	for(int j=0; j<height; ++j){
+		yuv2rgb(srcY, srcUV, dst, width);
+		srcY += width;
+		if((j&1) == 1){
+			srcUV += width;
+		}
+		dst += (width<<2);
+	}
+	dst = (unsigned char *)_bgra;
+	relief(dst, width, height);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_ReliefFilter_taken(JNIEnv* env, jobject thiz, jint width, jint height, jintArray bgra)
+{
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	unsigned char * dst = (unsigned char *)_bgra;
+	relief(dst, width, height);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SunshineFilter_preview(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jint x, jint y, jint radius, jint strength)
+{
+    jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	struct YUV420sp2RGB yuv2rgb(4, 0);
+
+	int frameSize = width*height;
+
+	unsigned char * srcY = (unsigned char *)_yuv;
+	unsigned char * srcUV = srcY + frameSize;
+	unsigned char * dst = (unsigned char *)_bgra;
+
+	for(int j=0; j<height; ++j){
+		yuv2rgb(srcY, srcUV, dst, width);
+		srcY += width;
+		if((j&1) == 1){
+			srcUV += width;
+		}
+		dst += (width<<2);
+	}
+	dst = (unsigned char *)_bgra;
+	sunshine(dst, width, height, x, y, radius, strength);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+    env->ReleaseByteArrayElements(yuv, _yuv, 0);
+}
+
+JNIEXPORT void JNICALL Java_com_race604_image_filter_SunshineFilter_taken(JNIEnv* env, jobject thiz, jint width, jint height, jintArray bgra, jint x, jint y, jint radius, jint strength)
+{
+    jint*  _bgra = env->GetIntArrayElements(bgra, 0);
+
+	unsigned char * dst = (unsigned char *)_bgra;
+	sunshine(dst, width, height, x, y, radius, strength);
+
+    env->ReleaseIntArrayElements(bgra, _bgra, 0);
+}
+
 }
